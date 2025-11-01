@@ -14,7 +14,8 @@ export const usePartyKitStore = create((set, get) => ({
     if (existingWs) {
       existingWs.close();
     }
-    const roomId = Math.random().toString(36).substring(2, 10);
+    const urlRoom = new URLSearchParams(window.location.search).get("room")
+    const roomId = urlRoom ? urlRoom : Math.random().toString(36).substring(2, 10);
     console.log(`🎈 Connecting to room: ${roomId} as ${deviceType}`);
     set({ status: 'connecting' });
     set({ room: roomId })
