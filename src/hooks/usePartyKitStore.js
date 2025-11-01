@@ -30,7 +30,7 @@ export const usePartyKitStore = create((set, get) => ({
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        // console.log(data);
+        console.log(data);
     
         set({ lastMessage: data });
 
