@@ -23,6 +23,9 @@ class PartyServer {
    * @param {ConnectionContext} ctx
    */
   onConnect(conn, ctx) {
+    const origin = ctx.request.headers.get("origin");
+
+
     console.log(
       `Connected:
   id: ${conn.id}
@@ -31,12 +34,14 @@ class PartyServer {
     );
 
     // Send current room state to new connection
-    conn.send(JSON.stringify({
-      type: 'connected',
-      connectionId: conn.id,
-      roomId: this.room.id,
-      connectedDevices: Array.from(this.devices.keys())
-    }));
+    conn.send(
+      JSON.stringify({
+        type: "connected",
+        connectionId: conn.id,
+        roomId: this.room.id,
+        connectedDevices: Array.from(this.devices.keys()),
+      })
+    );
   }
 
   /**
@@ -46,38 +51,43 @@ class PartyServer {
   onMessage(message, sender) {
     try {
       const data = JSON.parse(message);
-      
-      switch(data.type) {
-        case 'register':
+
+      switch (data.type) {
+        case "register":
           // Register device type (desktop/mobile)
           this.devices.set(sender.id, {
             deviceType: data.deviceType,
-            timestamp: Date.now()
+            timestamp: Date.now(),
           });
-          
+
           // Notify all connections about new device
-          this.room.broadcast(JSON.stringify({
-            type: 'device-joined',
-            connectionId: sender.id,
-            deviceType: data.deviceType,
-            connectedDevices: Array.from(this.devices.entries())
-          }));
+          this.room.broadcast(
+            JSON.stringify({
+              type: "device-joined",
+              connectionId: sender.id,
+              deviceType: data.deviceType,
+              connectedDevices: Array.from(this.devices.entries()),
+            })
+          );
           break;
-          
-        case 'data':
+
+        case "data":
           // Forward data to all other devices
-          this.room.broadcast(JSON.stringify({
-            type: 'data',
-            from: sender.id,
-            payload: data.payload
-          }), [sender.id]);
+          this.room.broadcast(
+            JSON.stringify({
+              type: "data",
+              from: sender.id,
+              payload: data.payload,
+            }),
+            [sender.id]
+          );
           break;
-          
+
         default:
           console.log(`Unknown message type: ${data.type}`);
       }
     } catch (e) {
-      console.error('Error parsing message:', e);
+      console.error("Error parsing message:", e);
     }
   }
 
@@ -86,13 +96,15 @@ class PartyServer {
    */
   onClose(conn) {
     this.devices.delete(conn.id);
-    
+
     // Notify remaining connections
-    this.room.broadcast(JSON.stringify({
-      type: 'device-left',
-      connectionId: conn.id,
-      connectedDevices: Array.from(this.devices.entries())
-    }));
+    this.room.broadcast(
+      JSON.stringify({
+        type: "device-left",
+        connectionId: conn.id,
+        connectedDevices: Array.from(this.devices.entries()),
+      })
+    );
   }
 }
 

@@ -1,2 +1,2 @@
 export * from './usePartyKitStore'
-export * from './usePartykitConnection'
+export * from './usePartyKitConnection'

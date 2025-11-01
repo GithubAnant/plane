@@ -19,7 +19,7 @@ export const usePartyKitStore = create((set, get) => ({
     set({ status: 'connecting' });
     set({ room: roomId })
 
-    const ws = new WebSocket(`wss://fish-party.lunakepio.partykit.dev/party/${roomId}`);
+    const ws = new WebSocket(`wss://worldcat-air-drag-deviation.trycloudflare.com/party/${roomId}`);
 
     ws.onopen = () => {
       console.log('✅ Connected!');
