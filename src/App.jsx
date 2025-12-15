@@ -3,6 +3,7 @@ import { MobileData } from "./Ui/MobileData";
 import { MobileController } from "./Ui/mobile/MobileController";
 import { Experience } from "./Experience";
 import { usePartyKitConnection } from "./hooks";
+import { GithubLink } from "./Ui/GithubLink";
 
 function App() {
 console.log(`%c
@@ -27,6 +28,7 @@ console.log(`%c
   return (
     <div className="canvas-container">
       <MobileData />
+      <GithubLink />
       <Canvas>
         <Experience />
       </Canvas>
