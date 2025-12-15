@@ -20,7 +20,10 @@ export const usePartyKitStore = create((set, get) => ({
     set({ status: 'connecting' });
     set({ room: roomId })
 
-    const ws = new WebSocket(`wss://worldcat-air-drag-deviation.trycloudflare.com/party/${roomId}`);
+    // Use your local network IP so mobile can connect
+    const host = window.location.hostname;
+    const wsUrl = host === 'localhost' ? 'localhost' : host;
+    const ws = new WebSocket(`ws://${wsUrl}:1999/party/${roomId}`);
 
     ws.onopen = () => {
       console.log('✅ Connected!');
