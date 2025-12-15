@@ -20,10 +20,7 @@ export const usePartyKitStore = create((set, get) => ({
     set({ status: 'connecting' });
     set({ room: roomId })
 
-    // Use your local network IP so mobile can connect
-    const host = window.location.hostname;
-    const wsUrl = host === 'localhost' ? 'localhost' : host;
-    const ws = new WebSocket(`ws://${wsUrl}:1999/party/${roomId}`);
+    const ws = new WebSocket(`wss://fish-party.githubanant.partykit.dev/party/${roomId}`);
 
     ws.onopen = () => {
       console.log('✅ Connected!');
@@ -41,7 +38,7 @@ export const usePartyKitStore = create((set, get) => ({
         if (data.type === 'device-joined' || data.type === 'device-left') {
           set({ devices: data.connectedDevices });
         }
-        if(data.payload.type === 'orientation'){
+        if(data.type === 'data' && data.payload?.type === 'orientation'){
           set({ mobileData: data.payload});
         }
       } catch (e) {

@@ -1,5 +1,5 @@
 import { Button } from "../components/Button";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useHaptic } from "use-haptic";
 import { normalizeYaw } from "@/utils";
 import { usePartyKitStore } from "../../hooks";
@@ -9,6 +9,7 @@ export const ActiveScreen = () => {
   const latestOrientation = useRef({ alpha: 0, beta: 0, gamma: 0 });
   const { triggerHaptic } = useHaptic();
   const sendData = usePartyKitStore((state) => state.sendData);
+  const [debugInfo, setDebugInfo] = useState('');
   
   const handleOrientation = (event) => {
     latestOrientation.current = {
@@ -24,7 +25,19 @@ export const ActiveScreen = () => {
   };
 
   useEffect(() => {
-    window.addEventListener("deviceorientation", handleOrientation);
+    // Request permission for iOS 13+ and some Android devices
+    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+      DeviceOrientationEvent.requestPermission()
+        .then(permissionState => {
+          if (permissionState === 'granted') {
+            window.addEventListener("deviceorientation", handleOrientation);
+          }
+        })
+        .catch(console.error);
+    } else {
+      // No permission needed
+      window.addEventListener("deviceorientation", handleOrientation);
+    }
 
     const interval = setInterval(() => {
       const raw = latestOrientation.current;
@@ -35,6 +48,9 @@ export const ActiveScreen = () => {
         beta: raw.beta - calibration.beta,
         gamma: raw.gamma - calibration.gamma,
       };
+
+      console.log('📤 Sending orientation:', calibrated); // Debug log
+      setDebugInfo(`α:${calibrated.alpha.toFixed(1)} β:${calibrated.beta.toFixed(1)} γ:${calibrated.gamma.toFixed(1)}`);
 
       sendData({
         type: "orientation",
@@ -53,6 +69,9 @@ export const ActiveScreen = () => {
       <Button label="A" className={"A-button"} onClick={handleRecalibrate} />
       <p className="explanation">
         Tap the A button to recalibrate the accelerometer.
+      <div style={{position: 'fixed', bottom: '20px', left: '20px', background: 'rgba(0,0,0,0.8)', color: 'lime', padding: '10px', fontFamily: 'monospace', fontSize: '14px'}}>
+        {debugInfo || 'Waiting for gyro...'}
+      </div>
       </p>
     </>
   );
