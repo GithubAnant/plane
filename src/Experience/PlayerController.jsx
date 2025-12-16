@@ -7,10 +7,11 @@ import { usePartyKitStore } from "../hooks";
 export const PlayerController = () => {
   const plane = useGLTF("./assets/models/PLANE.glb");
   const planeRef = useRef();
-  // const tipRef = useRef();
+  // const velocityRef = useRef({ x: 0, y: 0, z: 0 });
 
   // Reduced sensitivity for smoother control
   const sensitivity = 5;
+  const forwardSpeed = 3; // Constant forward motion
   useFrame((state, delta) => {
     if (!planeRef.current) return;
     
@@ -25,14 +26,16 @@ export const PlayerController = () => {
 
     // Tilt plane based on phone orientation
     // gamma (left/right tilt) -> roll (z-axis rotation)
-    planeRef.current.rotation.z = g * 0.3;
+    planeRef.current.rotation.z = g * 0.5;
     
-    // beta (forward/back tilt) -> pitch (x-axis rotation) - inverted
-    planeRef.current.rotation.x = -(b - Math.PI / 2) * 0.2;
+    // beta (forward/back tilt) -> pitch (x-axis rotation)
+    const pitchAmount = -(b - Math.PI / 2) * 0.4;
+    planeRef.current.rotation.x = pitchAmount;
     
-    // Position directly maps to tilt (so recalibration recenters it)
-    planeRef.current.position.x = -g * sensitivity;
-    planeRef.current.position.y = 2 + b * sensitivity; // Inverted: forward tilt = up
+    // Move plane - constant forward + climb/dive based on pitch
+    planeRef.current.position.z += forwardSpeed * delta; // Always moving forward
+    planeRef.current.position.x += -g * sensitivity * delta; // Side to side
+    planeRef.current.position.y += pitchAmount * sensitivity * delta; // Climb/dive based on pitch
   });
 
   return (
