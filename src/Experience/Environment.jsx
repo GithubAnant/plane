@@ -13,7 +13,8 @@ export const Environment = () => {
   const tiltedRock = useGLTF("./assets/models/tilted_rock.glb");
 
   const groundRef = useRef();
-  const speed = 5; // Ground scroll speed (reduced)
+  const speedRef = useRef(5); // Start speed
+  const speed = 5;
 
   useFrame((state, delta) => {
     const mobileData = usePartyKitStore.getState().mobileData;
@@ -35,8 +36,33 @@ export const Environment = () => {
     <group>
       {/* Ground plane */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2, 0]} receiveShadow>
-        <planeGeometry args={[200, 200]} />
-        <meshStandardMaterial color="#e8b88a" />
+        <planeGeometry args={[200, 200, 100, 100]} />
+        <meshStandardMaterial 
+          color="#d4a574"
+          roughness={1}
+          metalness={0}
+          displacementScale={2}
+          onBeforeCompile={(shader) => {
+            shader.vertexShader = shader.vertexShader.replace(
+              '#include <begin_vertex>',
+              `
+              #include <begin_vertex>
+              float noise = sin(position.x * 0.1) * cos(position.y * 0.1) * 2.0;
+              noise += sin(position.x * 0.05 + position.y * 0.05) * 3.0;
+              transformed.z += noise;
+              `
+            );
+            shader.fragmentShader = shader.fragmentShader.replace(
+              '#include <color_fragment>',
+              `
+              #include <color_fragment>
+              float pattern = sin(vUv.x * 50.0) * sin(vUv.y * 50.0) * 0.05;
+              diffuseColor.rgb *= (1.0 + pattern);
+              diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.76, 0.64, 0.45), 0.3);
+              `
+            );
+          }}
+        />
       </mesh>
 
       {/* Mesa 1 - Left */}
@@ -95,35 +121,35 @@ export const Environment = () => {
       {/* Obstacles - scrolling */}
       <group>
         {/* Cacti - much more spread out and closer together */}
-        <Obstacle model={longCactus.scene} initialPosition={[-15, 0, -15]} scale={3} />
-        <Obstacle model={roundCactus.scene} initialPosition={[18, 0, -25]} scale={0.8} />
-        <Obstacle model={weirdCactus.scene} initialPosition={[-8, 0, -35]} scale={1.8} />
-        <Obstacle model={longCactus.scene} initialPosition={[25, 0, -45]} scale={3} />
-        <Obstacle model={roundCactus.scene} initialPosition={[-20, 0, -55]} scale={0.8} />
-        <Obstacle model={weirdCactus.scene} initialPosition={[12, 0, -65]} scale={2.1} />
-        <Obstacle model={longCactus.scene} initialPosition={[-28, 0, -75]} scale={3} />
-        <Obstacle model={roundCactus.scene} initialPosition={[22, 0, -85]} scale={0.8} />
-        <Obstacle model={weirdCactus.scene} initialPosition={[-12, 0, -95]} scale={2.2} />
-        <Obstacle model={longCactus.scene} initialPosition={[16, 0, -105]} scale={3} />
-        <Obstacle model={roundCactus.scene} initialPosition={[-25, 0, -115]} scale={0.8} />
-        <Obstacle model={weirdCactus.scene} initialPosition={[20, 0, -125]} scale={2} />
-        <Obstacle model={longCactus.scene} initialPosition={[-18, 0, -135]} scale={3} />
+        <Obstacle model={longCactus.scene} initialPosition={[-15, 0, -30]} scale={5} />
+        <Obstacle model={roundCactus.scene} initialPosition={[18, 0, -45]} scale={0.8} />
+        <Obstacle model={weirdCactus.scene} initialPosition={[-8, 0, -60]} scale={1.8} />
+        <Obstacle model={longCactus.scene} initialPosition={[25, 0, -75]} scale={5} />
+        <Obstacle model={roundCactus.scene} initialPosition={[-20, 0, -90]} scale={0.8} />
+        <Obstacle model={weirdCactus.scene} initialPosition={[12, 0, -105]} scale={2.1} />
+        <Obstacle model={longCactus.scene} initialPosition={[-28, 0, -120]} scale={5} />
+        <Obstacle model={roundCactus.scene} initialPosition={[22, 0, -135]} scale={0.8} />
+        <Obstacle model={weirdCactus.scene} initialPosition={[-12, 0, -150]} scale={2.2} />
+        <Obstacle model={longCactus.scene} initialPosition={[16, 0, -165]} scale={5} />
+        <Obstacle model={roundCactus.scene} initialPosition={[-25, 0, -180]} scale={0.8} />
+        <Obstacle model={weirdCactus.scene} initialPosition={[20, 0, -195]} scale={2} />
+        <Obstacle model={longCactus.scene} initialPosition={[-18, 0, -210]} scale={5} />
         <Obstacle model={roundCactus.scene} initialPosition={[28, 0, -145]} scale={0.8} />
 
         {/* Rocks/Stones - scattered closer */}
-        <Obstacle model={polyRocks.scene} initialPosition={[-10, 0, -20]} scale={1.5} />
-        <Obstacle model={stackedStones.scene} initialPosition={[15, 0, -30]} scale={2} />
-        <Obstacle model={tiltedRock.scene} initialPosition={[-22, 0, -40]} scale={2} />
-        <Obstacle model={polyRocks.scene} initialPosition={[20, 0, -50]} scale={1.5} />
-        <Obstacle model={stackedStones.scene} initialPosition={[-15, 0, -60]} scale={2} />
-        <Obstacle model={tiltedRock.scene} initialPosition={[28, 0, -70]} scale={2} />
-        <Obstacle model={polyRocks.scene} initialPosition={[-12, 0, -80]} scale={1.5} />
-        <Obstacle model={tiltedRock.scene} initialPosition={[16, 0, -90]} scale={2} />
-        <Obstacle model={stackedStones.scene} initialPosition={[-20, 0, -100]} scale={2} />
-        <Obstacle model={polyRocks.scene} initialPosition={[25, 0, -110]} scale={1.5} />
-        <Obstacle model={tiltedRock.scene} initialPosition={[-16, 0, -120]} scale={2} />
-        <Obstacle model={stackedStones.scene} initialPosition={[22, 0, -130]} scale={2} />
-        <Obstacle model={polyRocks.scene} initialPosition={[-28, 0, -140]} scale={1.5} />
+        <Obstacle model={polyRocks.scene} initialPosition={[-10, 0, -35]} scale={1.5} />
+        <Obstacle model={stackedStones.scene} initialPosition={[15, 0, -50]} scale={2} />
+        <Obstacle model={tiltedRock.scene} initialPosition={[-22, 0, -65]} scale={2} />
+        <Obstacle model={polyRocks.scene} initialPosition={[20, 0, -80]} scale={1.5} />
+        <Obstacle model={stackedStones.scene} initialPosition={[-15, 0, -95]} scale={2} />
+        <Obstacle model={tiltedRock.scene} initialPosition={[28, 0, -110]} scale={2} />
+        <Obstacle model={polyRocks.scene} initialPosition={[-12, 0, -125]} scale={1.5} />
+        <Obstacle model={tiltedRock.scene} initialPosition={[16, 0, -140]} scale={2} />
+        <Obstacle model={stackedStones.scene} initialPosition={[-20, 0, -155]} scale={2} />
+        <Obstacle model={polyRocks.scene} initialPosition={[25, 0, -170]} scale={1.5} />
+        <Obstacle model={tiltedRock.scene} initialPosition={[-16, 0, -185]} scale={2} />
+        <Obstacle model={stackedStones.scene} initialPosition={[22, 0, -200]} scale={2} />
+        <Obstacle model={polyRocks.scene} initialPosition={[-28, 0, -215]} scale={1.5} />
       </group>
 
       {/* Sky gradient backdrop */}

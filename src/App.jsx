@@ -5,6 +5,7 @@ import { Experience } from "./Experience";
 import { usePartyKitConnection } from "./hooks";
 import { GithubLink } from "./Ui/GithubLink";
 import { GameOver } from "./Ui/GameOver";
+import { ScoreDisplay } from "./Ui/ScoreDisplay";
 
 function App() {
 console.log(`%c
@@ -30,6 +31,7 @@ console.log(`%c
     <div className="canvas-container">
       <MobileData />
       <GithubLink />
+      <ScoreDisplay />
       <GameOver />
       <Canvas>
         <Experience />

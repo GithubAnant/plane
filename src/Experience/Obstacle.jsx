@@ -15,9 +15,9 @@ export const Obstacle = ({ model, initialPosition, scale }) => {
     const newZ = currentPos.z - speed * delta;
 
     // Reset to front when it passes behind camera
-    if (newZ < -150) {
+    if (newZ < -250) {
       rigidBodyRef.current.setTranslation(
-        { x: initialPosition[0], y: initialPosition[1], z: newZ + 160 },
+        { x: initialPosition[0], y: initialPosition[1], z: newZ + 300 },
         true
       );
     } else {

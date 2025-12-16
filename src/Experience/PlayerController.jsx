@@ -76,7 +76,7 @@ export const PlayerController = () => {
     
     // Clamp position to keep plane in viewport
     planeRef.current.position.x = THREE.MathUtils.clamp(planeRef.current.position.x, -10, 10);
-    planeRef.current.position.y = THREE.MathUtils.clamp(planeRef.current.position.y, -2, 6);
+    planeRef.current.position.y = THREE.MathUtils.clamp(planeRef.current.position.y, 1, 8);
 
     // Update rigid body position to match plane
     rigidBodyRef.current.setTranslation(planeRef.current.position, true);
@@ -87,12 +87,12 @@ export const PlayerController = () => {
       ref={rigidBodyRef}
       type="kinematicPosition"
       colliders="cuboid"
-      position={[0, 0, 0]}
+      position={[0, 3, 0]}
       onCollisionEnter={() => {
         setGameOver(true);
       }}
     >
-      <group ref={planeRef} position={[0, 0, 0]}>
+      <group ref={planeRef} position={[0, 3, 0]}>
         <primitive 
           object={plane.scene} 
           scale={0.5}
