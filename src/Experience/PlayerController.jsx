@@ -11,7 +11,7 @@ export const PlayerController = () => {
 
   // Reduced sensitivity for smoother control
   const sensitivity = 5;
-  const forwardSpeed = 3; // Constant forward motion
+  const forwardSpeed = 0; // Constant forward motion
   useFrame((state, delta) => {
     if (!planeRef.current) return;
     
