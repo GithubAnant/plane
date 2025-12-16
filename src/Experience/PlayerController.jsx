@@ -10,7 +10,7 @@ export const PlayerController = () => {
   const plane = useGLTF("./assets/models/PLANE.glb");
   const planeRef = useRef();
   const rigidBodyRef = useRef();
-  const { setGameOver, isGameOver, incrementScore, gameState, startGame } = useGameStore();
+  const { setGameOver, isGameOver, incrementScore, gameState, startGame, resetGame } = useGameStore();
   
   // Reduced sensitivity for smoother control
   const sensitivity = 4;
@@ -40,6 +40,15 @@ export const PlayerController = () => {
   useEffect(() => {
     const unsub = usePartyKitStore.subscribe((state) => state.lastAction, (action) => {
         if (action && action.id === 'A') {
+             // Logic for Restarting
+             const storeState = useGameStore.getState();
+             if (storeState.gameState === 'GAMEOVER') {
+                 console.log("Restarting Game...");
+                 storeState.resetGame();
+                 storeState.startGame();
+                 // Also recalibrate on restart so they start level
+             }
+
              console.log("Recalibrating!");
              const currentData = usePartyKitStore.getState().mobileData;
              if (currentData) {
