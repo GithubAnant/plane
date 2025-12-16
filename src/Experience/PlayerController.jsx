@@ -7,10 +7,10 @@ import { usePartyKitStore } from "../hooks";
 export const PlayerController = () => {
   const plane = useGLTF("./assets/models/PLANE.glb");
   const planeRef = useRef();
-  const tipRef = useRef();
+  // const tipRef = useRef();
 
   // Reduced sensitivity for smoother control
-  const sensitivity = 2;
+  const sensitivity = 5;
   useFrame((state, delta) => {
     if (!planeRef.current) return;
     
