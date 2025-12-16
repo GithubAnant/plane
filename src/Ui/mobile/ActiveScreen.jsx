@@ -24,7 +24,8 @@ export const ActiveScreen = () => {
   const handleRecalibrate = () => {
     triggerHaptic();
     calibrationRef.current = { ...latestOrientation.current };
-    resetGame(); // Restart game
+    // Send action to desktop to trigger Restart/Recalibrate there
+    sendData({ type: 'button', id: 'A' });
   };
 
   useEffect(() => {
