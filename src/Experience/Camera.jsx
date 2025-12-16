@@ -1,7 +1,7 @@
 import { PerspectiveCamera } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
-import { EVENTS, eventBus, fishCaughtPosition, fishCaughtAnimationDuration } from "../utils";
+import { EVENTS, eventBus } from "../utils";
 import gsap from "gsap";
 
 export const Camera = () => {
@@ -16,29 +16,8 @@ export const Camera = () => {
   });
 
   useEffect(() => {
-    const { x, y, z } = fishCaughtPosition;
-    eventBus.on(EVENTS.FISH.CAUGHT, () => {
-      gsap.to(cameraLookAtRef.current.position, {
-        x: x,
-        y: y,
-        z: z,
-        duration: 0.6,
-        ease: "power3.out",
-        onComplete: () => {
-
-
-          gsap.to(cameraLookAtRef.current.position, {
-            x: 0,
-            y: 0,
-            z: 0,
-            duration: 0.6,
-            delay: fishCaughtAnimationDuration / 2,
-            ease: "power3.out",
-
-          });
-        },
-      });
-    });
+    // Simplified Camera logic without fish events
+    // If we want new events (like 'CRASH'), we can add them here later.
   }, []);
   return (
     <>

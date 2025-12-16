@@ -32,6 +32,28 @@ export const GameOver = () => {
       <p style={{ fontSize: "24px", marginTop: "40px", color: "#aaa" }}>
         Press A on your phone to restart
       </p>
+      
+      <button 
+        onClick={() => {
+            const state = useGameStore.getState();
+            state.resetGame();
+            state.startGame();
+        }}
+        style={{
+            marginTop: '30px',
+            padding: '15px 40px',
+            fontSize: '24px',
+            background: 'white',
+            color: 'black',
+            border: 'none',
+            borderRadius: '50px',
+            cursor: 'pointer',
+            fontWeight: 'bold',
+            boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
+        }}
+      >
+        RESTART
+      </button>
     </div>
   );
 };

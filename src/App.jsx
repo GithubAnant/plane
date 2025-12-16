@@ -9,15 +9,17 @@ import { ScoreDisplay } from "./Ui/ScoreDisplay";
 
 function App() {
 console.log(`%c
-     |\\    o
-    |  \\    o
-|\\ /    .\\ o
-| |       (
-|/ \\     /
-    |  /
-     |/
+      --|
+      \\  \\_
+      \\   \\_
+      \\    \\
+    __ \\    \\
+   |  \\  \\    \\
+  |    \\  \\    |
+   \\    \\  \\   |
+    \\____\\__\\__|
 
-     Fishing game v0.0.1 🐟🐟
+     Paper Plane Game v1.0.0 ✈️
 `, 'color: #4A90E2; font-family: monospace;');
   const deviceType = new URLSearchParams(window.location.search).get("room")
     ? "mobile"
