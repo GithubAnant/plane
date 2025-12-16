@@ -34,6 +34,25 @@ export const PlayerController = () => {
     });
   }, [plane.scene]);
 
+  const calibrationRef = useRef({ beta: 0, gamma: 0 });
+  
+  // Listen for recalibrate button
+  useEffect(() => {
+    const unsub = usePartyKitStore.subscribe((state) => state.lastAction, (action) => {
+        if (action && action.id === 'A') {
+             console.log("Recalibrating!");
+             const currentData = usePartyKitStore.getState().mobileData;
+             if (currentData) {
+                 calibrationRef.current = { 
+                     beta: currentData.beta || 0, 
+                     gamma: currentData.gamma || 0 
+                 };
+             }
+        }
+    });
+    return () => unsub();
+  }, []);
+
   useFrame((state, delta) => {
     if (!planeRef.current || !rigidBodyRef.current) return;
     
@@ -55,11 +74,20 @@ export const PlayerController = () => {
     // Increment score (distance traveled) - 1 meter per second
     incrementScore(delta * 1);
     
+    // Handle Recalibration logic is handled via useEffect updating the ref.
+    // In useFrame we just read the ref.
+    
     const { beta, gamma } = mobileData;
 
+    // Apply calibration
+    // We assume the user holds the phone in their "neutral" position when hitting A.
+    // So we subtract the calibration offset.
+    const bVal = (beta || 0) - calibrationRef.current.beta;
+    const gVal = (gamma || 0) - calibrationRef.current.gamma;
+
     // Convert to radians
-    const b = THREE.MathUtils.degToRad(beta || 0);
-    const g = THREE.MathUtils.degToRad(gamma || 0);
+    const b = THREE.MathUtils.degToRad(bVal);
+    const g = THREE.MathUtils.degToRad(gVal);
 
     // Tilt plane based on phone orientation
     // gamma (left/right tilt) -> roll (z-axis rotation)
@@ -75,14 +103,30 @@ export const PlayerController = () => {
     
     // Apply velocity to rigid body for physics-based movement
     // We keep Z velocity at 0 because the WORLD moves around us, we don't move forward physically
-    rigidBodyRef.current.setLinvel({ x: xVelocity, y: yVelocity, z: 0 }, true);
-
-    // Clamp position visually to keep within bounds if physics goes wild
+    
+    // Soft Boundary Logic:
+    // If we are past the edge AND trying to move further out, stop the movement.
     const currentPos = rigidBodyRef.current.translation();
-    if (currentPos.x < -12 || currentPos.x > 12 || currentPos.y < -2 || currentPos.y > 10) {
-       const clampedX = THREE.MathUtils.clamp(currentPos.x, -10, 10);
-       const clampedY = THREE.MathUtils.clamp(currentPos.y, -1, 8);
-       rigidBodyRef.current.setTranslation({ x: clampedX, y: clampedY, z: 0 }, true);
+    let finalXVelocity = xVelocity;
+    let finalYVelocity = yVelocity;
+
+    const X_LIMIT = 10;
+    const Y_Min = -1;
+    const Y_Max = 8;
+    
+    if (currentPos.x > X_LIMIT && xVelocity > 0) finalXVelocity = 0;
+    if (currentPos.x < -X_LIMIT && xVelocity < 0) finalXVelocity = 0;
+    
+    if (currentPos.y > Y_Max && yVelocity > 0) finalYVelocity = 0;
+    if (currentPos.y < Y_Min && yVelocity < 0) finalYVelocity = 0;
+
+    rigidBodyRef.current.setLinvel({ x: finalXVelocity, y: finalYVelocity, z: 0 }, true);
+
+    // Backup visual clamp only if things go extremly wild (like clipping through physics)
+    // but loosening it to allow soft touching
+    if (currentPos.x < -15 || currentPos.x > 15) {
+       const clampedX = THREE.MathUtils.clamp(currentPos.x, -12, 12);
+       rigidBodyRef.current.setTranslation({ x: clampedX, y: currentPos.y, z: 0 }, true);
     }
   });
 

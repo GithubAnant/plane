@@ -8,6 +8,7 @@ export const usePartyKitStore = create((set, get) => ({
   room: null,
   vitePort: 5173,
   mobileData: null,
+  lastAction: null,
   connect: (deviceType = 'desktop') => {
     const { ws: existingWs } = get();
     
@@ -38,8 +39,15 @@ export const usePartyKitStore = create((set, get) => ({
         if (data.type === 'device-joined' || data.type === 'device-left') {
           set({ devices: data.connectedDevices });
         }
-        if(data.type === 'data' && data.payload?.type === 'orientation'){
-          set({ mobileData: data.payload});
+        if(data.type === 'data') {
+          // If it's orientation, we update mobileData (which is used for steering)
+          if (data.payload?.type === 'orientation') {
+             set({ mobileData: data.payload});
+          }
+          // If it's a button press (assuming payload: { type: 'button', id: 'A' })
+          else if (data.payload?.type === 'button') {
+              set({ lastAction: data.payload }); // Store the last action
+          }
         }
       } catch (e) {
         console.error('Error parsing message:', e);

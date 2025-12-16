@@ -6,7 +6,7 @@ import { useGameStore } from "../store/gameStore";
 
 export const Obstacle = ({ model, initialPosition, scale }) => {
   const rigidBodyRef = useRef();
-  const speed = 5;
+  const speed = 30;
 
   const gameState = useGameStore((state) => state.gameState);
   
@@ -23,7 +23,7 @@ export const Obstacle = ({ model, initialPosition, scale }) => {
     // Reset to front when it passes behind camera
     if (newZ < -160) {
       rigidBodyRef.current.setTranslation(
-        { x: initialPosition[0], y: initialPosition[1], z: newZ + 1200 }, // Reset to end of queue (30 obs * 40 spacing)
+        { x: initialPosition[0], y: initialPosition[1], z: newZ + 1250 }, // Reset to end of queue (50 obs * 25 spacing)
         true
       );
     } else {

@@ -6,7 +6,7 @@ import * as THREE from "three";
 
 export const Pickup = ({ model, initialPosition, scale }) => {
   const rigidBodyRef = useRef();
-  const speed = 15;
+  const speed = 30; // Match global speed
   const gameState = useGameStore((state) => state.gameState);
   const incrementScore = useGameStore((state) => state.incrementScore);
   const [active, setActive] = useState(true);
@@ -21,7 +21,7 @@ export const Pickup = ({ model, initialPosition, scale }) => {
     // Reset to front when it passes behind camera
     if (newZ < -160) {
       rigidBodyRef.current.setTranslation(
-        { x: initialPosition[0], y: initialPosition[1], z: newZ + 1200 }, 
+        { x: initialPosition[0], y: initialPosition[1], z: newZ + 1250 }, 
         true
       );
       setActive(true); // Reactivate when recycled

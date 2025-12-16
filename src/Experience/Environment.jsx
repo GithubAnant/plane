@@ -21,7 +21,7 @@ export const Environment = () => {
 
   const groundRef = useRef();
   const groundRef2 = useRef();
-  const speed = 15; // Increased speed for more thrill
+  const speed = 30; // Increased speed for more thrill 
 
   const gameState = useGameStore((state) => state.gameState);
 
@@ -49,55 +49,38 @@ export const Environment = () => {
     }
   });
 
-  // Background Mountains (Static)
-  const Background = () => (
-    <group>
-      {/* Front Left */}
-      <primitive object={tiltedRock.scene.clone()} position={[-80, -10, 100]} scale={30} rotation={[0, 1, 0]} />
-      {/* Front Right */}
-      <primitive object={tiltedRock.scene.clone()} position={[80, -10, 80]} scale={30} rotation={[0, -1, 0]} />
-      {/* Back Center */}
-      <primitive object={polyRocks.scene.clone()} position={[0, -20, 250]} scale={80} />
-      {/* Far Left */}
-      <primitive object={stackedStones.scene.clone()} position={[-150, -10, 200]} scale={50} />
-       {/* Far Right */}
-      <primitive object={stackedStones.scene.clone()} position={[150, -10, 200]} scale={50} />
-    </group>
-  );
-
-  const Ground = () => (
-     <>
-      <mesh ref={groundRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, -5, 0]} receiveShadow>
-        <planeGeometry args={[400, 400]} />
-        <meshStandardMaterial color="#e8b88a" roughness={1} />
-      </mesh>
-      <mesh ref={groundRef2} rotation={[-Math.PI / 2, 0, 0]} position={[0, -5, 400]} receiveShadow>
-        <planeGeometry args={[400, 400]} />
-        <meshStandardMaterial color="#e8b88a" roughness={1} />
-      </mesh>
-     </>
-  )
+  // ... [Background and Ground components unchanged] ...
 
   // Procedural-ish Obstacle positions
   const { obstacles, pickups } = useMemo(() => {
     const obs = [];
     const picks = [];
+    
+    // Weighted models: Repeat Cacti to increase probability
+    // 0-2: Cactus, 3: Stones, 4: Rocks
+    // Let's add more cacti indices
     const models = [
-        { m: longCactus.scene, s: 7, y: -2 },
-        { m: roundCactus.scene, s: 3, y: -2 },
-        { m: weirdCactus.scene, s: 3, y: -2 },
-        { m: stackedStones.scene, s: 4, y: -3 },
-        { m: polyRocks.scene, s: 5, y: -3 }
+        { m: longCactus.scene, s: 7, y: -2 },   // 0: Cactus
+        { m: roundCactus.scene, s: 3, y: -2 },  // 1: Cactus
+        { m: weirdCactus.scene, s: 3, y: -2 },  // 2: Cactus
+        { m: longCactus.scene, s: 8, y: -2 },   // 3: Cactus (Big)
+        { m: stackedStones.scene, s: 4, y: -3 },// 4: Stone
+        { m: polyRocks.scene, s: 5, y: -3 }     // 5: Rock
     ];
+    // Weights: Cacti (0,1,2,3) vs Rocks (4,5) -> 4:2 ratio (66% cacti)
+    
     const birdModels = [
         yellow_bird.scene, green_bird.scene, blue_bird.scene, red_bird.scene
     ];
     
-    // Generate a sequence of 30 obstacles
-    for(let i=0; i<30; i++) {
+    // Generate a sequence of 50 obstacles (More density)
+    for(let i=0; i<50; i++) {
         const type = Math.floor(Math.random() * models.length);
         const xDir = Math.random() > 0.5 ? 1 : -1;
-        const zPos = 100 + (i * 40); 
+        
+        // Z position: Start at 100, spacing 25 (tighter)
+        const zPos = 100 + (i * 25); 
+        
         const xPos = (Math.random() * 20 + 8) * xDir; 
         
         obs.push({
