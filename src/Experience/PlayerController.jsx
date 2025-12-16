@@ -27,12 +27,12 @@ export const PlayerController = () => {
     // gamma (left/right tilt) -> roll (z-axis rotation)
     planeRef.current.rotation.z = g * 0.3;
     
-    // beta (forward/back tilt) -> pitch (x-axis rotation)
-    planeRef.current.rotation.x = (b - Math.PI / 2) * 0.2;
+    // beta (forward/back tilt) -> pitch (x-axis rotation) - inverted
+    planeRef.current.rotation.x = -(b - Math.PI / 2) * 0.2;
     
     // Position directly maps to tilt (so recalibration recenters it)
     planeRef.current.position.x = -g * sensitivity;
-    planeRef.current.position.y = 2; // Lock altitude at 2
+    planeRef.current.position.y = 2 + b * sensitivity; // Inverted: forward tilt = up
   });
 
   return (
