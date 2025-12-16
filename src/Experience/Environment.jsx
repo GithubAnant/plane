@@ -49,7 +49,34 @@ export const Environment = () => {
     }
   });
 
-  // ... [Background and Ground components unchanged] ...
+  // Background Mountains (Static)
+  const Background = () => (
+    <group>
+      {/* Front Left */}
+      <primitive object={tiltedRock.scene.clone()} position={[-80, -10, 100]} scale={30} rotation={[0, 1, 0]} />
+      {/* Front Right */}
+      <primitive object={tiltedRock.scene.clone()} position={[80, -10, 80]} scale={30} rotation={[0, -1, 0]} />
+      {/* Back Center */}
+      <primitive object={polyRocks.scene.clone()} position={[0, -20, 250]} scale={80} />
+      {/* Far Left */}
+      <primitive object={stackedStones.scene.clone()} position={[-150, -10, 200]} scale={50} />
+       {/* Far Right */}
+      <primitive object={stackedStones.scene.clone()} position={[150, -10, 200]} scale={50} />
+    </group>
+  );
+
+  const Ground = () => (
+     <>
+      <mesh ref={groundRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, -5, 0]} receiveShadow>
+        <planeGeometry args={[400, 400]} />
+        <meshStandardMaterial color="#e8b88a" roughness={1} />
+      </mesh>
+      <mesh ref={groundRef2} rotation={[-Math.PI / 2, 0, 0]} position={[0, -5, 400]} receiveShadow>
+        <planeGeometry args={[400, 400]} />
+        <meshStandardMaterial color="#e8b88a" roughness={1} />
+      </mesh>
+     </>
+  )
 
   // Procedural-ish Obstacle positions
   const { obstacles, pickups } = useMemo(() => {
