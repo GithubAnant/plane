@@ -14,7 +14,7 @@ import { usePartyKitStore } from "../hooks";
 extend({ MeshLineGeometry, MeshLineMaterial });
 
 export const PlayerController = () => {
-  const plane = useGLTF("./assets/models/PLANE.glb");
+  const plane = useGLTF("./assets/models/Camera.glb");
   const hookMesh = useRef();
   const canneRef = useRef();
   const fishBody = useRef();
@@ -210,14 +210,7 @@ export const PlayerController = () => {
   };
   return (
     <group dispose={null}>
-      <group ref={canneRef} position={[0, 2, 0]} rotation-y={0.3}>
-        {/* Debug box - you should see this red cube */}
-        <mesh>
-          <boxGeometry args={[1, 1, 1]} />
-          <meshStandardMaterial color="red" />
-        </mesh>
-        
-        {/* Your plane - trying different scales and positions */}
+      <group ref={canneRef} position={[0, 2, 0]} rotation={[0, 0.3, 0]}>
         <primitive 
           object={plane.scene} 
           scale={0.5}
@@ -343,4 +336,4 @@ export const PlayerController = () => {
   );
 };
 
-useGLTF.preload("./assets/models/PLANE.glb");
+useGLTF.preload("./assets/models/Camera.glb");

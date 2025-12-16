@@ -42,11 +42,11 @@ export const Camera = () => {
   }, []);
   return (
     <>
-      <group ref={cameraLookAtRef}></group>
+      <group ref={cameraLookAtRef} position={[0, 0, 0]}></group>
       <PerspectiveCamera
         makeDefault={true}
-        rotation={[0, Math.PI / 2, 0]}
-        position={[10, 10, 0]}
+        position={[-0.009033, -27.736, 3.2546]}
+        rotation={[1.109, 0, -0.0141]}
         fov={50}
       />
     </>
