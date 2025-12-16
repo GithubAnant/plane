@@ -1,16 +1,28 @@
-# React + Vite
+# ✈️ Paper Plane Game
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+tilt your phone, fly a paper plane through a desert. don't crash into stuff. that's it.
 
-Currently, two official plugins are available:
+## how it works
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+your phone becomes the controller - tilt it to steer the plane. the gyroscope data gets sent to your desktop via websockets and boom, you're flying.
 
-## React Compiler
+## running this thing
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+```bash
+npm install
+npm run dev
+```
 
-## Expanding the ESLint configuration
+**important:** gyroscope only works on HTTPS. download [ngrok](https://ngrok.com/) and run:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+ngrok http 5173
+```
+
+use the ngrok HTTPS url on your phone, otherwise the gyroscope won't work. localhost is fine for desktop.
+
+press **A** on your phone to calibrate and start. tilt to fly. crash. repeat.
+
+## stack
+
+three.js for 3D, rapier for collisions, partykit for phone-to-desktop sync, your phone's gyroscope for controls. made the plane model in blender cause why not.
