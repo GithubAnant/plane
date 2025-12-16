@@ -14,7 +14,7 @@ import { usePartyKitStore } from "../hooks";
 extend({ MeshLineGeometry, MeshLineMaterial });
 
 export const PlayerController = () => {
-  const { nodes, materials } = useGLTF("./assets/models/fishing-rod.glb");
+  const plane = useGLTF("./assets/models/PLANE.glb");
   const hookMesh = useRef();
   const canneRef = useRef();
   const fishBody = useRef();
@@ -210,13 +210,23 @@ export const PlayerController = () => {
   };
   return (
     <group dispose={null}>
-      <group ref={canneRef} rotation-y={0.3}>
-        <mesh
-          scale={3}
-          geometry={nodes.Cube.geometry}
-          material={materials["Material.001"]}
-          rotation={[-Math.PI / 2, 0.512, Math.PI / 2]}
-        >
+      <group ref={canneRef} position={[0, 2, 0]} rotation-y={0.3}>
+        {/* Debug box - you should see this red cube */}
+        <mesh>
+          <boxGeometry args={[1, 1, 1]} />
+          <meshStandardMaterial color="red" />
+        </mesh>
+        
+        {/* Your plane - trying different scales and positions */}
+        <primitive 
+          object={plane.scene} 
+          scale={0.5}
+          rotation={[0, Math.PI, 0]}
+          position={[0, 0, 0]}
+        />
+        
+        <mesh visible={false}>
+          <boxGeometry args={[0.1, 0.1, 0.1]} />
           <group ref={tipRef} position={[0, 1.35, -0.2]}>
           </group>
         </mesh>
@@ -333,4 +343,4 @@ export const PlayerController = () => {
   );
 };
 
-useGLTF.preload("./assets/models/fishing-rod.glb");
+useGLTF.preload("./assets/models/PLANE.glb");
