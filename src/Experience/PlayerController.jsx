@@ -25,14 +25,14 @@ export const PlayerController = () => {
 
     // Tilt plane based on phone orientation
     // gamma (left/right tilt) -> roll (z-axis rotation)
-    planeRef.current.rotation.z = -g * 0.3; // Reduced from default
+    planeRef.current.rotation.z = -g * 0.3;
     
     // beta (forward/back tilt) -> pitch (x-axis rotation)
-    planeRef.current.rotation.x = (b - Math.PI / 2) * 0.2; // Reduced from default
+    planeRef.current.rotation.x = (b - Math.PI / 2) * 0.2;
     
-    // Move plane position based on tilt
+    // Move plane left/right based on tilt, but keep altitude constant
     planeRef.current.position.x += g * sensitivity * delta;
-    planeRef.current.position.y += -b * sensitivity * delta;
+    planeRef.current.position.y = 2; // Lock altitude at 2
   });
 
   return (
