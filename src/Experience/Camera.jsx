@@ -45,8 +45,8 @@ export const Camera = () => {
       <group ref={cameraLookAtRef} position={[0, 2, 0]}></group>
       <PerspectiveCamera
         makeDefault={true}
-        position={[0, 8, -15]}
-        fov={60}
+        position={[0, 12, -20]}
+        fov={65}
       />
     </>
   );

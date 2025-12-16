@@ -1,4 +1,48 @@
+import { useGLTF } from "@react-three/drei";
+import { useFrame } from "@react-three/fiber";
+import { useRef } from "react";
+import { usePartyKitStore } from "../hooks";
+
 export const Environment = () => {
+  const longCactus = useGLTF("./assets/models/long_cactus.glb");
+  const roundCactus = useGLTF("./assets/models/round_cactus.glb");
+  const weirdCactus = useGLTF("./assets/models/weird_cactus.glb");
+  const polyRocks = useGLTF("./assets/models/poly_rocks.glb");
+  const stackedStones = useGLTF("./assets/models/stones_stacked.glb");
+  const tiltedRock = useGLTF("./assets/models/tilted_rock.glb");
+
+  const groundRef = useRef();
+  const obstaclesRef = useRef();
+  const speed = 15; // Ground scroll speed
+
+  useFrame((state, delta) => {
+    const mobileData = usePartyKitStore.getState().mobileData;
+    
+    // Only scroll if phone is connected
+    if (!mobileData) return;
+
+    // Move ground forward (toward camera)
+    if (groundRef.current) {
+      groundRef.current.position.z += speed * delta;
+      // Reset when it scrolls too far
+      if (groundRef.current.position.z > 100) {
+        groundRef.current.position.z -= 200;
+      }
+    }
+
+    // Move obstacles forward (toward camera)
+    if (obstaclesRef.current) {
+      obstaclesRef.current.children.forEach((obstacle) => {
+        obstacle.position.z += speed * delta;
+        
+        // Reset to back when it passes camera
+        if (obstacle.position.z > 20) {
+          obstacle.position.z -= 160;
+        }
+      });
+    }
+  });
+
   return (
     <group>
       {/* Ground plane */}
@@ -54,34 +98,33 @@ export const Environment = () => {
         <meshStandardMaterial color="#ba7751" flatShading />
       </mesh>
 
-      {/* Cacti */}
-      <group position={[-8, -2, 10]}>
-        <mesh castShadow>
-          <cylinderGeometry args={[0.3, 0.3, 4]} />
-          <meshStandardMaterial color="#6b9a5b" flatShading />
-        </mesh>
-        <mesh position={[0.6, 0.5, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
-          <cylinderGeometry args={[0.2, 0.2, 1.2]} />
-          <meshStandardMaterial color="#6b9a5b" flatShading />
-        </mesh>
-      </group>
+      {/* Ground plane - scrolling */}
+      <mesh ref={groundRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, -2, 0]} receiveShadow>
+        <planeGeometry args={[200, 200]} />
+        <meshStandardMaterial color="#e8b88a" />
+      </mesh>
 
-      <group position={[12, -2, 5]}>
-        <mesh castShadow>
-          <cylinderGeometry args={[0.4, 0.4, 5]} />
-          <meshStandardMaterial color="#6b9a5b" flatShading />
-        </mesh>
-      </group>
+      {/* Obstacles - scrolling */}
+      <group ref={obstaclesRef}>
+        {/* Cacti - spread across landscape */}
+        <primitive object={longCactus.scene.clone()} position={[-15, 0, -20]} scale={2} />
+        <primitive object={roundCactus.scene.clone()} position={[18, 0, -35]} scale={2.2} />
+        <primitive object={weirdCactus.scene.clone()} position={[-8, 0, -50]} scale={1.8} />
+        <primitive object={longCactus.scene.clone()} position={[25, 0, -65]} scale={2.3} />
+        <primitive object={roundCactus.scene.clone()} position={[-20, 0, -80]} scale={2} />
+        <primitive object={weirdCactus.scene.clone()} position={[12, 0, -95]} scale={2.1} />
+        <primitive object={longCactus.scene.clone()} position={[-28, 0, -110]} scale={2.4} />
+        <primitive object={roundCactus.scene.clone()} position={[22, 0, -125]} scale={1.9} />
 
-      <group position={[-15, -2, -10]}>
-        <mesh castShadow>
-          <cylinderGeometry args={[0.35, 0.35, 4.5]} />
-          <meshStandardMaterial color="#6b9a5b" flatShading />
-        </mesh>
-        <mesh position={[-0.7, 0.8, 0]} rotation={[0, 0, -Math.PI / 2]} castShadow>
-          <cylinderGeometry args={[0.2, 0.2, 1.5]} />
-          <meshStandardMaterial color="#6b9a5b" flatShading />
-        </mesh>
+        {/* Rocks/Stones - scattered */}
+        <primitive object={polyRocks.scene.clone()} position={[-10, 0, -30]} scale={2.5} />
+        <primitive object={stackedStones.scene.clone()} position={[15, 0, -45]} scale={2} />
+        <primitive object={tiltedRock.scene.clone()} position={[-25, 0, -60]} scale={2.3} />
+        <primitive object={polyRocks.scene.clone()} position={[20, 0, -75]} scale={2.2} />
+        <primitive object={stackedStones.scene.clone()} position={[-18, 0, -90]} scale={2.6} />
+        <primitive object={tiltedRock.scene.clone()} position={[28, 0, -105]} scale={2.1} />
+        <primitive object={polyRocks.scene.clone()} position={[-12, 0, -120]} scale={2.4} />
+        <primitive object={tiltedRock.scene.clone()} position={[16, 0, -135]} scale={2.5} />
       </group>
 
       {/* Sky gradient backdrop */}
@@ -92,3 +135,15 @@ export const Environment = () => {
     </group>
   );
 };
+
+// Preload models
+useGLTF.preload("./assets/models/long_cactus.glb");
+useGLTF.preload("./assets/models/round_cactus.glb");
+useGLTF.preload("./assets/models/weird_cactus.glb");
+useGLTF.preload("./assets/models/poly_rocks.glb");
+useGLTF.preload("./assets/models/tilted_rock.glb");
+useGLTF.preload("./assets/models/stones_stacked.glb");
+useGLTF.preload("./assets/models/yellow_bird.glb");
+useGLTF.preload("./assets/models/green_bird.glb");
+useGLTF.preload("./assets/models/blue_bird.glb");
+useGLTF.preload("./assets/models/red_bird.glb");
