@@ -33,7 +33,7 @@ export const PlayerController = () => {
     planeRef.current.rotation.x = pitchAmount;
     
     // Only climb/dive if pitch is significant (deadzone)
-    const climbRate = Math.abs(pitchAmount) > 0.1 ? pitchAmount * sensitivity : 0;
+    const climbRate = 0;
     
     // Move plane - constant forward + climb/dive based on pitch
     planeRef.current.position.z += forwardSpeed; // Always moving forward
