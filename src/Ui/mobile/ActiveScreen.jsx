@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useHaptic } from "use-haptic";
 import { normalizeYaw } from "@/utils";
 import { usePartyKitStore } from "../../hooks";
+import { useGameStore } from "../../store/gameStore";
 
 export const ActiveScreen = () => {
   const calibrationRef = useRef({ alpha: 0, beta: 0, gamma: 0 });
@@ -10,6 +11,7 @@ export const ActiveScreen = () => {
   const { triggerHaptic } = useHaptic();
   const sendData = usePartyKitStore((state) => state.sendData);
   const [debugInfo, setDebugInfo] = useState('');
+  const resetGame = useGameStore((state) => state.resetGame);
   
   const handleOrientation = (event) => {
     latestOrientation.current = {
@@ -22,6 +24,7 @@ export const ActiveScreen = () => {
   const handleRecalibrate = () => {
     triggerHaptic();
     calibrationRef.current = { ...latestOrientation.current };
+    resetGame(); // Restart game
   };
 
   useEffect(() => {

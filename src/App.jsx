@@ -4,6 +4,7 @@ import { MobileController } from "./Ui/mobile/MobileController";
 import { Experience } from "./Experience";
 import { usePartyKitConnection } from "./hooks";
 import { GithubLink } from "./Ui/GithubLink";
+import { GameOver } from "./Ui/GameOver";
 
 function App() {
 console.log(`%c
@@ -29,6 +30,7 @@ console.log(`%c
     <div className="canvas-container">
       <MobileData />
       <GithubLink />
+      <GameOver />
       <Canvas>
         <Experience />
       </Canvas>

@@ -2,6 +2,7 @@ import { useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
 import { usePartyKitStore } from "../hooks";
+import { Obstacle } from "./Obstacle";
 
 export const Environment = () => {
   const longCactus = useGLTF("./assets/models/long_cactus.glb");
@@ -12,8 +13,7 @@ export const Environment = () => {
   const tiltedRock = useGLTF("./assets/models/tilted_rock.glb");
 
   const groundRef = useRef();
-  const obstaclesRef = useRef();
-  const speed = 15; // Ground scroll speed
+  const speed = 5; // Ground scroll speed (reduced)
 
   useFrame((state, delta) => {
     const mobileData = usePartyKitStore.getState().mobileData;
@@ -21,25 +21,13 @@ export const Environment = () => {
     // Only scroll if phone is connected
     if (!mobileData) return;
 
-    // Move ground forward (toward camera)
+    // Move ground backward (away from camera) - creates forward flight illusion
     if (groundRef.current) {
-      groundRef.current.position.z += speed * delta;
+      groundRef.current.position.z -= speed * delta;
       // Reset when it scrolls too far
-      if (groundRef.current.position.z > 100) {
-        groundRef.current.position.z -= 200;
+      if (groundRef.current.position.z < -100) {
+        groundRef.current.position.z += 200;
       }
-    }
-
-    // Move obstacles forward (toward camera)
-    if (obstaclesRef.current) {
-      obstaclesRef.current.children.forEach((obstacle) => {
-        obstacle.position.z += speed * delta;
-        
-        // Reset to back when it passes camera
-        if (obstacle.position.z > 20) {
-          obstacle.position.z -= 160;
-        }
-      });
     }
   });
 
@@ -105,26 +93,37 @@ export const Environment = () => {
       </mesh>
 
       {/* Obstacles - scrolling */}
-      <group ref={obstaclesRef}>
-        {/* Cacti - spread across landscape */}
-        <primitive object={longCactus.scene.clone()} position={[-15, 0, -20]} scale={2} />
-        <primitive object={roundCactus.scene.clone()} position={[18, 0, -35]} scale={2.2} />
-        <primitive object={weirdCactus.scene.clone()} position={[-8, 0, -50]} scale={1.8} />
-        <primitive object={longCactus.scene.clone()} position={[25, 0, -65]} scale={2.3} />
-        <primitive object={roundCactus.scene.clone()} position={[-20, 0, -80]} scale={2} />
-        <primitive object={weirdCactus.scene.clone()} position={[12, 0, -95]} scale={2.1} />
-        <primitive object={longCactus.scene.clone()} position={[-28, 0, -110]} scale={2.4} />
-        <primitive object={roundCactus.scene.clone()} position={[22, 0, -125]} scale={1.9} />
+      <group>
+        {/* Cacti - much more spread out and closer together */}
+        <Obstacle model={longCactus.scene} initialPosition={[-15, 0, -15]} scale={3} />
+        <Obstacle model={roundCactus.scene} initialPosition={[18, 0, -25]} scale={0.8} />
+        <Obstacle model={weirdCactus.scene} initialPosition={[-8, 0, -35]} scale={1.8} />
+        <Obstacle model={longCactus.scene} initialPosition={[25, 0, -45]} scale={3} />
+        <Obstacle model={roundCactus.scene} initialPosition={[-20, 0, -55]} scale={0.8} />
+        <Obstacle model={weirdCactus.scene} initialPosition={[12, 0, -65]} scale={2.1} />
+        <Obstacle model={longCactus.scene} initialPosition={[-28, 0, -75]} scale={3} />
+        <Obstacle model={roundCactus.scene} initialPosition={[22, 0, -85]} scale={0.8} />
+        <Obstacle model={weirdCactus.scene} initialPosition={[-12, 0, -95]} scale={2.2} />
+        <Obstacle model={longCactus.scene} initialPosition={[16, 0, -105]} scale={3} />
+        <Obstacle model={roundCactus.scene} initialPosition={[-25, 0, -115]} scale={0.8} />
+        <Obstacle model={weirdCactus.scene} initialPosition={[20, 0, -125]} scale={2} />
+        <Obstacle model={longCactus.scene} initialPosition={[-18, 0, -135]} scale={3} />
+        <Obstacle model={roundCactus.scene} initialPosition={[28, 0, -145]} scale={0.8} />
 
-        {/* Rocks/Stones - scattered */}
-        <primitive object={polyRocks.scene.clone()} position={[-10, 0, -30]} scale={2.5} />
-        <primitive object={stackedStones.scene.clone()} position={[15, 0, -45]} scale={2} />
-        <primitive object={tiltedRock.scene.clone()} position={[-25, 0, -60]} scale={2.3} />
-        <primitive object={polyRocks.scene.clone()} position={[20, 0, -75]} scale={2.2} />
-        <primitive object={stackedStones.scene.clone()} position={[-18, 0, -90]} scale={2.6} />
-        <primitive object={tiltedRock.scene.clone()} position={[28, 0, -105]} scale={2.1} />
-        <primitive object={polyRocks.scene.clone()} position={[-12, 0, -120]} scale={2.4} />
-        <primitive object={tiltedRock.scene.clone()} position={[16, 0, -135]} scale={2.5} />
+        {/* Rocks/Stones - scattered closer */}
+        <Obstacle model={polyRocks.scene} initialPosition={[-10, 0, -20]} scale={1.5} />
+        <Obstacle model={stackedStones.scene} initialPosition={[15, 0, -30]} scale={2} />
+        <Obstacle model={tiltedRock.scene} initialPosition={[-22, 0, -40]} scale={2} />
+        <Obstacle model={polyRocks.scene} initialPosition={[20, 0, -50]} scale={1.5} />
+        <Obstacle model={stackedStones.scene} initialPosition={[-15, 0, -60]} scale={2} />
+        <Obstacle model={tiltedRock.scene} initialPosition={[28, 0, -70]} scale={2} />
+        <Obstacle model={polyRocks.scene} initialPosition={[-12, 0, -80]} scale={1.5} />
+        <Obstacle model={tiltedRock.scene} initialPosition={[16, 0, -90]} scale={2} />
+        <Obstacle model={stackedStones.scene} initialPosition={[-20, 0, -100]} scale={2} />
+        <Obstacle model={polyRocks.scene} initialPosition={[25, 0, -110]} scale={1.5} />
+        <Obstacle model={tiltedRock.scene} initialPosition={[-16, 0, -120]} scale={2} />
+        <Obstacle model={stackedStones.scene} initialPosition={[22, 0, -130]} scale={2} />
+        <Obstacle model={polyRocks.scene} initialPosition={[-28, 0, -140]} scale={1.5} />
       </group>
 
       {/* Sky gradient backdrop */}

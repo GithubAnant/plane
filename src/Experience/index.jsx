@@ -12,8 +12,8 @@ export const Experience = () => {
       <Suspense fallback={null}>
         <Physics gravity={[0, -40, 0]} timeStep={"vary"}>
           <PlayerController />
+          <Environment />
         </Physics>
-        <Environment />
       </Suspense>
       <Camera/>
       <ambientLight intensity={2} />

@@ -3,10 +3,16 @@ import React, { useRef, useEffect } from "react";
 import { useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { usePartyKitStore } from "../hooks";
+import { RigidBody } from "@react-three/rapier";
+import { useGameStore } from "../store/gameStore";
 
 export const PlayerController = () => {
-  const plane = useGLTF("./assets/models/New.glb");
+  const plane = useGLTF("./assets/models/PLANE.glb");
   const planeRef = useRef();
+  const rigidBodyRef = useRef();
+  const setGameOver = useGameStore((state) => state.setGameOver);
+  const isGameOver = useGameStore((state) => state.isGameOver);
+  const incrementScore = useGameStore((state) => state.incrementScore);
 
   // Reduced sensitivity for smoother control
   const sensitivity = 4;
@@ -29,8 +35,9 @@ export const PlayerController = () => {
       }
     });
   }, [plane.scene]);
+
   useFrame((state, delta) => {
-    if (!planeRef.current) return;
+    if (!planeRef.current || !rigidBodyRef.current || isGameOver) return;
     
     const mobileData = usePartyKitStore.getState().mobileData;
     
@@ -40,6 +47,9 @@ export const PlayerController = () => {
       planeRef.current.rotation.z = 0;
       return;
     }
+
+    // Increment score (distance traveled) - roughly 5 units per second
+    incrementScore(delta * 5);
     
     const { beta, gamma } = mobileData;
 
@@ -66,18 +76,31 @@ export const PlayerController = () => {
     
     // Clamp position to keep plane in viewport
     planeRef.current.position.x = THREE.MathUtils.clamp(planeRef.current.position.x, -10, 10);
-    planeRef.current.position.y = THREE.MathUtils.clamp(planeRef.current.position.y, -2, 8);
+    planeRef.current.position.y = THREE.MathUtils.clamp(planeRef.current.position.y, -2, 6);
+
+    // Update rigid body position to match plane
+    rigidBodyRef.current.setTranslation(planeRef.current.position, true);
   });
 
   return (
-    <group ref={planeRef} position={[0, 2, 0]}>
-      <primitive 
-        object={plane.scene} 
-        scale={0.5}
-        rotation={[0, Math.PI, 0]}
-      />
-    </group>
+    <RigidBody
+      ref={rigidBodyRef}
+      type="kinematicPosition"
+      colliders="cuboid"
+      position={[0, 0, 0]}
+      onCollisionEnter={() => {
+        setGameOver(true);
+      }}
+    >
+      <group ref={planeRef} position={[0, 0, 0]}>
+        <primitive 
+          object={plane.scene} 
+          scale={0.5}
+          rotation={[0, Math.PI, 0]}
+        />
+      </group>
+    </RigidBody>
   );
 };
 
-useGLTF.preload("./assets/models/New.glb");
+useGLTF.preload("./assets/models/PLANE.glb");
