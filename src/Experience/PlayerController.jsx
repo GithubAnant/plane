@@ -10,10 +10,8 @@ export const PlayerController = () => {
   const plane = useGLTF("./assets/models/PLANE.glb");
   const planeRef = useRef();
   const rigidBodyRef = useRef();
-  const setGameOver = useGameStore((state) => state.setGameOver);
-  const isGameOver = useGameStore((state) => state.isGameOver);
-  const incrementScore = useGameStore((state) => state.incrementScore);
-
+  const { setGameOver, isGameOver, incrementScore, gameState, startGame } = useGameStore();
+  
   // Reduced sensitivity for smoother control
   const sensitivity = 4;
   const forwardSpeed = 0; // Constant forward motion
@@ -37,19 +35,25 @@ export const PlayerController = () => {
   }, [plane.scene]);
 
   useFrame((state, delta) => {
-    if (!planeRef.current || !rigidBodyRef.current || isGameOver) return;
+    if (!planeRef.current || !rigidBodyRef.current) return;
     
+    // Auto-start game on first movement/interaction could be added here, 
+    // but for now let's respect the START state.
     const mobileData = usePartyKitStore.getState().mobileData;
     
-    // If no gyro data yet, keep plane horizontal
-    if (!mobileData) {
-      planeRef.current.rotation.x = 0;
-      planeRef.current.rotation.z = 0;
+    if (gameState !== 'PLAYING') {
+      // Keep plane hovering/idle if not playing
+      if (gameState === 'START' && mobileData) {
+        startGame(); // Start game when phone connects/sends data
+      }
       return;
     }
+    
+    // If no gyro data yet, keep plane horizontal
+    if (!mobileData) return;
 
-    // Increment score (distance traveled) - roughly 5 units per second
-    incrementScore(delta * 5);
+    // Increment score (distance traveled) - 1 meter per second
+    incrementScore(delta * 1);
     
     const { beta, gamma } = mobileData;
 
@@ -58,41 +62,46 @@ export const PlayerController = () => {
     const g = THREE.MathUtils.degToRad(gamma || 0);
 
     // Tilt plane based on phone orientation
-    // gamma (left/right tilt) -> roll (z-axis rotation) - clamp to prevent extreme rolls
+    // gamma (left/right tilt) -> roll (z-axis rotation)
     planeRef.current.rotation.z = THREE.MathUtils.clamp(g * 0.3, -Math.PI / 3, Math.PI / 3);
     
     // beta (forward/back tilt) -> pitch (x-axis rotation)
-    // When calibrated, beta should be close to 0, so plane stays horizontal
     const pitchAmount = -b * 0.1;
     planeRef.current.rotation.x = THREE.MathUtils.clamp(pitchAmount, -Math.PI / 4, Math.PI / 4);
     
-    // Only climb/dive if pitch is significant (deadzone)
-    const climbRate = 0;
+    // Calculate velocity based on tilt
+    const xVelocity = -g * sensitivity * 10;
+    const yVelocity = pitchAmount * sensitivity * 5;
     
-    // Move plane - constant forward + climb/dive based on pitch
-    planeRef.current.position.z += forwardSpeed; // Always moving forward
-    planeRef.current.position.x += -g * sensitivity * 2 * delta; // Side to side
-    planeRef.current.position.y += climbRate * delta; // Climb/dive based on pitch
-    
-    // Clamp position to keep plane in viewport
-    planeRef.current.position.x = THREE.MathUtils.clamp(planeRef.current.position.x, -10, 10);
-    planeRef.current.position.y = THREE.MathUtils.clamp(planeRef.current.position.y, 1, 8);
+    // Apply velocity to rigid body for physics-based movement
+    // We keep Z velocity at 0 because the WORLD moves around us, we don't move forward physically
+    rigidBodyRef.current.setLinvel({ x: xVelocity, y: yVelocity, z: 0 }, true);
 
-    // Update rigid body position to match plane
-    rigidBodyRef.current.setTranslation(planeRef.current.position, true);
+    // Clamp position visually to keep within bounds if physics goes wild
+    const currentPos = rigidBodyRef.current.translation();
+    if (currentPos.x < -12 || currentPos.x > 12 || currentPos.y < -2 || currentPos.y > 10) {
+       const clampedX = THREE.MathUtils.clamp(currentPos.x, -10, 10);
+       const clampedY = THREE.MathUtils.clamp(currentPos.y, -1, 8);
+       rigidBodyRef.current.setTranslation({ x: clampedX, y: clampedY, z: 0 }, true);
+    }
   });
 
   return (
     <RigidBody
       ref={rigidBodyRef}
-      type="kinematicPosition"
+      type="dynamic" // Changed to dynamic for collision events
+      gravityScale={0} // No gravity so it doesn't fall
       colliders="cuboid"
-      position={[0, 3, 0]}
-      onCollisionEnter={() => {
-        setGameOver(true);
+      position={[0, 1, 0]}
+      scale={[2, 1, 2]}
+      onCollisionEnter={({ other }) => {
+        if (gameState === 'PLAYING') {
+            console.log("Collision!", other);
+            setGameOver();
+        }
       }}
     >
-      <group ref={planeRef} position={[0, 3, 0]}>
+      <group ref={planeRef}>
         <primitive 
           object={plane.scene} 
           scale={0.5}

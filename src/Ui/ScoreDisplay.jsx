@@ -11,7 +11,7 @@ export const ScoreDisplay = () => {
       style={{
         position: "fixed",
         top: "40px",
-        right: "40px",
+        left: "40px",
         fontSize: "48px",
         fontFamily: "monospace",
         fontWeight: "bold",

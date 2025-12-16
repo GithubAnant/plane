@@ -1,8 +1,11 @@
-import { useGLTF } from "@react-three/drei";
+import { useGLTF, Environment as DreiEnvironment, Stars, Cloud } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { useRef } from "react";
+import { useRef, useMemo } from "react";
 import { usePartyKitStore } from "../hooks";
+import { useGameStore } from "../store/gameStore";
 import { Obstacle } from "./Obstacle";
+import { Pickup } from "./Pickup";
+import * as THREE from "three";
 
 export const Environment = () => {
   const longCactus = useGLTF("./assets/models/long_cactus.glb");
@@ -11,152 +14,155 @@ export const Environment = () => {
   const polyRocks = useGLTF("./assets/models/poly_rocks.glb");
   const stackedStones = useGLTF("./assets/models/stones_stacked.glb");
   const tiltedRock = useGLTF("./assets/models/tilted_rock.glb");
+  const yellow_bird = useGLTF("./assets/models/yellow_bird.glb");
+  const green_bird = useGLTF("./assets/models/green_bird.glb");
+  const blue_bird = useGLTF("./assets/models/blue_bird.glb");
+  const red_bird = useGLTF("./assets/models/red_bird.glb");
 
   const groundRef = useRef();
-  const speedRef = useRef(5); // Start speed
-  const speed = 5;
+  const groundRef2 = useRef();
+  const speed = 15; // Increased speed for more thrill
+
+  const gameState = useGameStore((state) => state.gameState);
 
   useFrame((state, delta) => {
-    const mobileData = usePartyKitStore.getState().mobileData;
-    
-    // Only scroll if phone is connected
-    if (!mobileData) return;
+    if (gameState !== 'PLAYING') return;
 
-    // Move ground backward (away from camera) - creates forward flight illusion
+    // Scroll two ground planes for seamless infinite scrolling
     if (groundRef.current) {
       groundRef.current.position.z -= speed * delta;
-      // Reset when it scrolls too far
-      if (groundRef.current.position.z < -100) {
-        groundRef.current.position.z += 200;
+      // If ground moves from 0 to -400, it passes the camera.
+      if (groundRef.current.position.z < -200) {
+        // Reset to +600 (behind the second ground plane which is at 200?) 
+        // Wait, ground2 starts at 400. Ground1 starts at 0.
+        // If Ground1 < -200. Ground2 is at +200?
+        // We want Ground1 to jump to behind Ground2.
+        // If size is 400.
+        groundRef.current.position.z += 800; 
+      }
+    }
+    if (groundRef2.current) {
+      groundRef2.current.position.z -= speed * delta;
+      if (groundRef2.current.position.z < -200) {
+        groundRef2.current.position.z += 800;
       }
     }
   });
 
+  // Background Mountains (Static)
+  const Background = () => (
+    <group>
+      {/* Front Left */}
+      <primitive object={tiltedRock.scene.clone()} position={[-80, -10, 100]} scale={30} rotation={[0, 1, 0]} />
+      {/* Front Right */}
+      <primitive object={tiltedRock.scene.clone()} position={[80, -10, 80]} scale={30} rotation={[0, -1, 0]} />
+      {/* Back Center */}
+      <primitive object={polyRocks.scene.clone()} position={[0, -20, 250]} scale={80} />
+      {/* Far Left */}
+      <primitive object={stackedStones.scene.clone()} position={[-150, -10, 200]} scale={50} />
+       {/* Far Right */}
+      <primitive object={stackedStones.scene.clone()} position={[150, -10, 200]} scale={50} />
+    </group>
+  );
+
+  const Ground = () => (
+     <>
+      <mesh ref={groundRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, -5, 0]} receiveShadow>
+        <planeGeometry args={[400, 400]} />
+        <meshStandardMaterial color="#e8b88a" roughness={1} />
+      </mesh>
+      <mesh ref={groundRef2} rotation={[-Math.PI / 2, 0, 0]} position={[0, -5, 400]} receiveShadow>
+        <planeGeometry args={[400, 400]} />
+        <meshStandardMaterial color="#e8b88a" roughness={1} />
+      </mesh>
+     </>
+  )
+
+  // Procedural-ish Obstacle positions
+  const { obstacles, pickups } = useMemo(() => {
+    const obs = [];
+    const picks = [];
+    const models = [
+        { m: longCactus.scene, s: 7, y: -2 },
+        { m: roundCactus.scene, s: 3, y: -2 },
+        { m: weirdCactus.scene, s: 3, y: -2 },
+        { m: stackedStones.scene, s: 4, y: -3 },
+        { m: polyRocks.scene, s: 5, y: -3 }
+    ];
+    const birdModels = [
+        yellow_bird.scene, green_bird.scene, blue_bird.scene, red_bird.scene
+    ];
+    
+    // Generate a sequence of 30 obstacles
+    for(let i=0; i<30; i++) {
+        const type = Math.floor(Math.random() * models.length);
+        const xDir = Math.random() > 0.5 ? 1 : -1;
+        const zPos = 100 + (i * 40); 
+        const xPos = (Math.random() * 20 + 8) * xDir; 
+        
+        obs.push({
+            id: i,
+            model: models[type].m,
+            pos: [xPos, models[type].y, zPos],
+            scale: models[type].s
+        });
+        
+        // Spawn a pickup occasionally
+        if (i % 3 === 0) {
+            const bType = Math.floor(Math.random() * birdModels.length);
+            picks.push({
+                id: i,
+                model: birdModels[bType],
+                pos: [
+                    (Math.random() * 10 - 5), // Center-ish
+                    (Math.random() * 5 + 2),   // Higher up in the air
+                    zPos + 20                  // In between obstacles
+                ],
+                scale: 0.5 // Birds are small
+            });
+        }
+    }
+    return { obstacles: obs, pickups: picks };
+  }, []);
+
   return (
     <group>
-      {/* Ground plane */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2, 0]} receiveShadow>
-        <planeGeometry args={[200, 200, 100, 100]} />
-        <meshStandardMaterial 
-          color="#d4a574"
-          roughness={1}
-          metalness={0}
-          displacementScale={2}
-          onBeforeCompile={(shader) => {
-            shader.vertexShader = shader.vertexShader.replace(
-              '#include <begin_vertex>',
-              `
-              #include <begin_vertex>
-              float noise = sin(position.x * 0.1) * cos(position.y * 0.1) * 2.0;
-              noise += sin(position.x * 0.05 + position.y * 0.05) * 3.0;
-              transformed.z += noise;
-              `
-            );
-            shader.fragmentShader = shader.fragmentShader.replace(
-              '#include <color_fragment>',
-              `
-              #include <color_fragment>
-              float pattern = sin(vUv.x * 50.0) * sin(vUv.y * 50.0) * 0.05;
-              diffuseColor.rgb *= (1.0 + pattern);
-              diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.76, 0.64, 0.45), 0.3);
-              `
-            );
-          }}
-        />
+      <DreiEnvironment preset="sunset" />
+      <directionalLight position={[10, 20, 5]} intensity={1.5} castShadow />
+      <ambientLight intensity={0.5} />
+      
+      {/* Sky */}
+      <mesh position={[0, 0, -300]} scale={[500, 200, 1]}>
+        <planeGeometry />
+        <meshBasicMaterial color="#87CEEB" /> 
       </mesh>
+      
+      <Ground />
+      <Background />
 
-      {/* Mesa 1 - Left */}
-      <group position={[-40, 0, -80]}>
-        <mesh castShadow>
-          <boxGeometry args={[15, 25, 12]} />
-          <meshStandardMaterial color="#d98555" flatShading />
-        </mesh>
-        <mesh position={[0, 15, 0]} castShadow>
-          <boxGeometry args={[12, 5, 10]} />
-          <meshStandardMaterial color="#c97545" flatShading />
-        </mesh>
-      </group>
+      {obstacles.map(o => (
+         <Obstacle 
+            key={o.id} 
+            model={o.model} 
+            initialPosition={o.pos} 
+            scale={o.scale} 
+         />
+      ))}
 
-      {/* Mesa 2 - Center */}
-      <group position={[0, 0, -100]}>
-        <mesh castShadow>
-          <boxGeometry args={[10, 20, 10]} />
-          <meshStandardMaterial color="#da8960" flatShading />
-        </mesh>
-        <mesh position={[0, 12, 0]} castShadow>
-          <boxGeometry args={[8, 4, 8]} />
-          <meshStandardMaterial color="#c77550" flatShading />
-        </mesh>
-      </group>
+      {pickups.map(p => (
+         <Pickup 
+            key={p.id} 
+            model={p.model} 
+            initialPosition={p.pos} 
+            scale={p.scale} 
+         />
+      ))}
+      
+      {/* Add some clouds/stars for atmosphere */}
+      <Cloud position={[-4, 20, -20]} speed={0.2} opacity={0.5} />
+      <Cloud position={[4, 20, -50]} speed={0.2} opacity={0.5} />
+      <Cloud position={[0, 20, -100]} speed={0.2} opacity={0.5} />
 
-      {/* Mesa 3 - Right */}
-      <group position={[45, 0, -90]}>
-        <mesh castShadow>
-          <boxGeometry args={[18, 28, 14]} />
-          <meshStandardMaterial color="#dc8b65" flatShading />
-        </mesh>
-        <mesh position={[0, 16, 0]} castShadow>
-          <boxGeometry args={[14, 4, 11]} />
-          <meshStandardMaterial color="#ca7955" flatShading />
-        </mesh>
-      </group>
-
-      {/* Smaller rock formations */}
-      <mesh position={[-20, -1, -40]} castShadow>
-        <boxGeometry args={[5, 6, 5]} />
-        <meshStandardMaterial color="#b8754f" flatShading />
-      </mesh>
-
-      <mesh position={[25, -1, -50]} castShadow>
-        <boxGeometry args={[6, 8, 6]} />
-        <meshStandardMaterial color="#ba7751" flatShading />
-      </mesh>
-
-      {/* Ground plane - scrolling */}
-      <mesh ref={groundRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, -2, 0]} receiveShadow>
-        <planeGeometry args={[200, 200]} />
-        <meshStandardMaterial color="#e8b88a" />
-      </mesh>
-
-      {/* Obstacles - scrolling */}
-      <group>
-        {/* Cacti - much more spread out and closer together */}
-        <Obstacle model={longCactus.scene} initialPosition={[-15, 0, -30]} scale={5} />
-        <Obstacle model={roundCactus.scene} initialPosition={[18, 0, -45]} scale={0.8} />
-        <Obstacle model={weirdCactus.scene} initialPosition={[-8, 0, -60]} scale={1.8} />
-        <Obstacle model={longCactus.scene} initialPosition={[25, 0, -75]} scale={5} />
-        <Obstacle model={roundCactus.scene} initialPosition={[-20, 0, -90]} scale={0.8} />
-        <Obstacle model={weirdCactus.scene} initialPosition={[12, 0, -105]} scale={2.1} />
-        <Obstacle model={longCactus.scene} initialPosition={[-28, 0, -120]} scale={5} />
-        <Obstacle model={roundCactus.scene} initialPosition={[22, 0, -135]} scale={0.8} />
-        <Obstacle model={weirdCactus.scene} initialPosition={[-12, 0, -150]} scale={2.2} />
-        <Obstacle model={longCactus.scene} initialPosition={[16, 0, -165]} scale={5} />
-        <Obstacle model={roundCactus.scene} initialPosition={[-25, 0, -180]} scale={0.8} />
-        <Obstacle model={weirdCactus.scene} initialPosition={[20, 0, -195]} scale={2} />
-        <Obstacle model={longCactus.scene} initialPosition={[-18, 0, -210]} scale={5} />
-        <Obstacle model={roundCactus.scene} initialPosition={[28, 0, -145]} scale={0.8} />
-
-        {/* Rocks/Stones - scattered closer */}
-        <Obstacle model={polyRocks.scene} initialPosition={[-10, 0, -35]} scale={1.5} />
-        <Obstacle model={stackedStones.scene} initialPosition={[15, 0, -50]} scale={2} />
-        <Obstacle model={tiltedRock.scene} initialPosition={[-22, 0, -65]} scale={2} />
-        <Obstacle model={polyRocks.scene} initialPosition={[20, 0, -80]} scale={1.5} />
-        <Obstacle model={stackedStones.scene} initialPosition={[-15, 0, -95]} scale={2} />
-        <Obstacle model={tiltedRock.scene} initialPosition={[28, 0, -110]} scale={2} />
-        <Obstacle model={polyRocks.scene} initialPosition={[-12, 0, -125]} scale={1.5} />
-        <Obstacle model={tiltedRock.scene} initialPosition={[16, 0, -140]} scale={2} />
-        <Obstacle model={stackedStones.scene} initialPosition={[-20, 0, -155]} scale={2} />
-        <Obstacle model={polyRocks.scene} initialPosition={[25, 0, -170]} scale={1.5} />
-        <Obstacle model={tiltedRock.scene} initialPosition={[-16, 0, -185]} scale={2} />
-        <Obstacle model={stackedStones.scene} initialPosition={[22, 0, -200]} scale={2} />
-        <Obstacle model={polyRocks.scene} initialPosition={[-28, 0, -215]} scale={1.5} />
-      </group>
-
-      {/* Sky gradient backdrop */}
-      <mesh position={[0, 30, -120]} rotation={[0, 0, 0]}>
-        <planeGeometry args={[300, 100]} />
-        <meshBasicMaterial color="#87ceeb" />
-      </mesh>
     </group>
   );
 };

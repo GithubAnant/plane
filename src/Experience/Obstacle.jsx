@@ -2,22 +2,28 @@ import { RigidBody } from "@react-three/rapier";
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { usePartyKitStore } from "../hooks";
+import { useGameStore } from "../store/gameStore";
 
 export const Obstacle = ({ model, initialPosition, scale }) => {
   const rigidBodyRef = useRef();
   const speed = 5;
 
+  const gameState = useGameStore((state) => state.gameState);
+  
   useFrame((state, delta) => {
-    const mobileData = usePartyKitStore.getState().mobileData;
-    if (!mobileData || !rigidBodyRef.current) return;
+    if (gameState !== 'PLAYING') return;
+    
+    // We can rely on global state or still use PartyKit if we want to sync start? 
+    // But PlayerController handles start. Obstacles just move when playing.
+    if (!rigidBodyRef.current) return;
 
     const currentPos = rigidBodyRef.current.translation();
     const newZ = currentPos.z - speed * delta;
 
     // Reset to front when it passes behind camera
-    if (newZ < -250) {
+    if (newZ < -160) {
       rigidBodyRef.current.setTranslation(
-        { x: initialPosition[0], y: initialPosition[1], z: newZ + 300 },
+        { x: initialPosition[0], y: initialPosition[1], z: newZ + 1200 }, // Reset to end of queue (30 obs * 40 spacing)
         true
       );
     } else {
