@@ -1,6 +1,5 @@
 import { Physics } from "@react-three/rapier";
 import { Suspense } from "react";
-import { Particles } from "./Particles/Particles";
 import { Camera } from "./Camera";
 import { PlayerController } from "./PlayerController";
 import { Environment } from "./Environment";
@@ -16,7 +15,6 @@ export const Experience = () => {
         </Physics>
         <Environment />
       </Suspense>
-      <Particles />
       <Camera/>
       <ambientLight intensity={2} />
       <directionalLight 
