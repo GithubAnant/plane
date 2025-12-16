@@ -46,7 +46,13 @@ export const PlayerController = () => {
                  console.log("Restarting Game...");
                  storeState.resetGame();
                  storeState.startGame();
-                 // Also recalibrate on restart so they start level
+                 
+                 // Manually reset physics and rotation
+                 if (rigidBodyRef.current && planeRef.current) {
+                    rigidBodyRef.current.setTranslation({ x: 0, y: 1, z: 0 }, true);
+                    rigidBodyRef.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
+                    planeRef.current.rotation.set(0, 0, 0);
+                 }
              }
 
              console.log("Recalibrating!");
@@ -119,7 +125,7 @@ export const PlayerController = () => {
     let finalXVelocity = xVelocity;
     let finalYVelocity = yVelocity;
 
-    const X_LIMIT = 10;
+    const X_LIMIT = 30; // Increased from 10 to 30
     const Y_Min = -1;
     const Y_Max = 8;
     
@@ -133,8 +139,8 @@ export const PlayerController = () => {
 
     // Backup visual clamp only if things go extremly wild (like clipping through physics)
     // but loosening it to allow soft touching
-    if (currentPos.x < -15 || currentPos.x > 15) {
-       const clampedX = THREE.MathUtils.clamp(currentPos.x, -12, 12);
+    if (currentPos.x < -35 || currentPos.x > 35) {
+       const clampedX = THREE.MathUtils.clamp(currentPos.x, -32, 32);
        rigidBodyRef.current.setTranslation({ x: clampedX, y: currentPos.y, z: 0 }, true);
     }
   });

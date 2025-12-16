@@ -29,9 +29,6 @@ export const GameOver = () => {
       <p style={{ fontSize: "32px", marginTop: "20px" }}>
         Distance: {Math.floor(score)}m
       </p>
-      <p style={{ fontSize: "24px", marginTop: "40px", color: "#aaa" }}>
-        Press A on your phone to restart
-      </p>
       
       <button 
         onClick={() => {

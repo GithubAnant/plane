@@ -108,7 +108,8 @@ export const Environment = () => {
         // Z position: Start at 100, spacing 25 (tighter)
         const zPos = 100 + (i * 25); 
         
-        const xPos = (Math.random() * 20 + 8) * xDir; 
+        // Dynamic X position for wider play area. Use full width (-30 to 30)
+        const xPos = (Math.random() * 56 - 28); // Random between -28 and 28
         
         obs.push({
             id: i,
@@ -124,7 +125,7 @@ export const Environment = () => {
                 id: i,
                 model: birdModels[bType],
                 pos: [
-                    (Math.random() * 10 - 5), // Center-ish
+                    (Math.random() * 50 - 25), // Wider range (-25 to 25)
                     (Math.random() * 5 + 2),   // Higher up in the air
                     zPos + 20                  // In between obstacles
                 ],
