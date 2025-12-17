@@ -66,17 +66,30 @@ export const PlayerController = () => {
   // When state goes to START or PLAYING, reset physics.
   useEffect(() => {
     if (gameState === 'START' || gameState === 'PLAYING') {
-         // Reset physics position and velocity
+         // Reset physics position, velocity, AND rotation
          if (rigidBodyRef.current) {
             rigidBodyRef.current.setTranslation({ x: 0, y: 1, z: 0 }, true);
             rigidBodyRef.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
+            rigidBodyRef.current.setAngvel({ x: 0, y: 0, z: 0 }, true);
+            rigidBodyRef.current.setRotation({ x: 0, y: 0, z: 0, w: 1 }, true);
          }
          // Reset visual rotation
          if (planeRef.current) {
             planeRef.current.rotation.set(0, 0, 0);
          }
-         // Also reset calibration ref just in case
-         calibrationRef.current = { beta: 0, gamma: 0 };
+         
+         // Recalibrate to current phone position!
+         // This ensures that however the user is holding the phone right now becomes "Level"
+         const currentMobileData = usePartyKitStore.getState().mobileData;
+         if (currentMobileData) {
+              calibrationRef.current = { 
+                  beta: currentMobileData.beta || 0, 
+                  gamma: currentMobileData.gamma || 0 
+              };
+         } else {
+             // Fallback if no data yet
+             calibrationRef.current = { beta: 0, gamma: 0 };
+         }
     }
   }, [gameState]); // Runs whenever gameState changes
 
