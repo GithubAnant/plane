@@ -7,7 +7,7 @@ import { RigidBody } from "@react-three/rapier";
 import { useGameStore } from "../store/gameStore";
 
 export const PlayerController = () => {
-  const plane = useGLTF("./assets/models/PLANE.glb");
+  const plane = useGLTF("/assets/models/PLANE.glb");
   const planeRef = useRef();
   const rigidBodyRef = useRef();
   const { setGameOver, isGameOver, incrementScore, gameState, startGame, resetGame } = useGameStore();
@@ -171,4 +171,4 @@ export const PlayerController = () => {
   );
 };
 
-useGLTF.preload("./assets/models/PLANE.glb");
+useGLTF.preload("/assets/models/PLANE.glb");
