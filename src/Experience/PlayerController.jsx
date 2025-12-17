@@ -46,13 +46,7 @@ export const PlayerController = () => {
                  console.log("Restarting Game...");
                  storeState.resetGame();
                  storeState.startGame();
-                 
-                 // Manually reset physics and rotation
-                 if (rigidBodyRef.current && planeRef.current) {
-                    rigidBodyRef.current.setTranslation({ x: 0, y: 1, z: 0 }, true);
-                    rigidBodyRef.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
-                    planeRef.current.rotation.set(0, 0, 0);
-                 }
+                 // Physics reset is handled by useEffect([gameState])
              }
 
              console.log("Recalibrating!");
@@ -66,7 +60,25 @@ export const PlayerController = () => {
         }
     });
     return () => unsub();
-  }, []);
+  }, []); // Restored closing bracket for the first useEffect
+
+  // Centralized Reset Logic: Watch for Game State changes
+  // When state goes to START or PLAYING, reset physics.
+  useEffect(() => {
+    if (gameState === 'START' || gameState === 'PLAYING') {
+         // Reset physics position and velocity
+         if (rigidBodyRef.current) {
+            rigidBodyRef.current.setTranslation({ x: 0, y: 1, z: 0 }, true);
+            rigidBodyRef.current.setLinvel({ x: 0, y: 0, z: 0 }, true);
+         }
+         // Reset visual rotation
+         if (planeRef.current) {
+            planeRef.current.rotation.set(0, 0, 0);
+         }
+         // Also reset calibration ref just in case
+         calibrationRef.current = { beta: 0, gamma: 0 };
+    }
+  }, [gameState]); // Runs whenever gameState changes
 
   useFrame((state, delta) => {
     if (!planeRef.current || !rigidBodyRef.current) return;
