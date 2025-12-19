@@ -11,6 +11,17 @@ export const Pickup = ({ model, initialPosition, scale }) => {
   const incrementScore = useGameStore((state) => state.incrementScore);
   const [active, setActive] = useState(true);
 
+  useEffect(() => {
+    if (gameState === 'START' && rigidBodyRef.current) {
+        rigidBodyRef.current.setTranslation(
+            { x: initialPosition[0], y: initialPosition[1], z: initialPosition[2] },
+            true
+        );
+        setActive(true);
+        rigidBodyRef.current.setEnabled(true);
+    }
+  }, [gameState, initialPosition]);
+
   useFrame((state, delta) => {
     if (gameState !== 'PLAYING') return;
     if (!rigidBodyRef.current) return;

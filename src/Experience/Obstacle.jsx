@@ -9,6 +9,15 @@ export const Obstacle = ({ model, initialPosition, scale }) => {
   const speed = 30;
 
   const gameState = useGameStore((state) => state.gameState);
+
+  useEffect(() => {
+    if (gameState === 'START' && rigidBodyRef.current) {
+        rigidBodyRef.current.setTranslation(
+            { x: initialPosition[0], y: initialPosition[1], z: initialPosition[2] },
+            true
+        );
+    }
+  }, [gameState, initialPosition]);
   
   useFrame((state, delta) => {
     if (gameState !== 'PLAYING') return;

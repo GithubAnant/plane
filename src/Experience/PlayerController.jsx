@@ -162,22 +162,24 @@ export const PlayerController = () => {
 
     rigidBodyRef.current.setLinvel({ x: finalXVelocity, y: finalYVelocity, z: 0 }, true);
 
-    // Backup visual clamp only if things go extremly wild (like clipping through physics)
-    // but loosening it to allow soft touching
-    if (currentPos.x < -35 || currentPos.x > 35) {
-       const clampedX = THREE.MathUtils.clamp(currentPos.x, -32, 32);
-       rigidBodyRef.current.setTranslation({ x: clampedX, y: currentPos.y, z: 0 }, true);
+    // Hard Clamp to keep within game boundaries (Fixes "abnormal height" and flying off screen)
+    // We clamp slightly wider than the velocity stop limits to allow for "bouncing" off the invisible walls
+    const clampedX = THREE.MathUtils.clamp(currentPos.x, -X_LIMIT - 2, X_LIMIT + 2);
+    const clampedY = THREE.MathUtils.clamp(currentPos.y, Y_Min, Y_Max); 
+
+    if (currentPos.x !== clampedX || currentPos.y !== clampedY) {
+         rigidBodyRef.current.setTranslation({ x: clampedX, y: clampedY, z: 0 }, true);
     }
   });
 
   return (
     <RigidBody
       ref={rigidBodyRef}
-      type="dynamic" // Changed to dynamic for collision events
-      gravityScale={0} // No gravity so it doesn't fall
+      type="dynamic" 
+      gravityScale={0}
       colliders="cuboid"
       position={[0, 1, 0]}
-      scale={[2, 1, 2]}
+      scale={[0.5, 0.5, 0.5]} // Reduced scale to match visual mesh (Fixes "broken collision" / huge hitbox)
       onCollisionEnter={({ other }) => {
         if (gameState === 'PLAYING') {
             console.log("Collision!", other);
@@ -188,7 +190,7 @@ export const PlayerController = () => {
       <group ref={planeRef}>
         <primitive 
           object={plane.scene} 
-          scale={0.5}
+          scale={1} // Relative to RigidBody (0.5 * 1 = 0.5 World Scale)
           rotation={[0, Math.PI, 0]}
         />
       </group>
