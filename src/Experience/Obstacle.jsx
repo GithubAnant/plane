@@ -1,5 +1,5 @@
 import { RigidBody } from "@react-three/rapier";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
 import { usePartyKitStore } from "../hooks";
 import { useGameStore } from "../store/gameStore";
