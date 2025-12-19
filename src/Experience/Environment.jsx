@@ -88,7 +88,7 @@ export const Environment = () => {
     // Let's add more cacti indices
     const models = [
         { m: longCactus.scene, s: 7, y: -2 },   // 0: Cactus
-        { m: roundCactus.scene, s: 8, y: -2 },  // 1: Cactus
+        { m: roundCactus.scene, s: 6, y: -2 },  // 1: Cactus
         { m: weirdCactus.scene, s: 4, y: -2 },  // 2: Cactus
         { m: longCactus.scene, s: 8, y: -2 },   // 3: Cactus (Big)
         { m: stackedStones.scene, s: 6, y: -3 },// 4: Stone
