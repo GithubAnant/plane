@@ -34,7 +34,7 @@ export const GameOver = () => {
         onClick={() => {
             const state = useGameStore.getState();
             state.resetGame();
-            state.startGame();
+            // state.startGame(); // Removed to let PlayerController auto-start after reset, ensuring 'START' state is seen
         }}
         style={{
             marginTop: '30px',

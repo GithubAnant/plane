@@ -105,8 +105,8 @@ export const Environment = () => {
         const type = Math.floor(Math.random() * models.length);
         const xDir = Math.random() > 0.5 ? 1 : -1;
         
-        // Z position: Start at 100, spacing 25 (tighter)
-        const zPos = 100 + (i * 25); 
+        // Z position: Start at 500 (Clear runway), spacing 25 (tighter)
+        const zPos = 500 + (i * 25); 
         
         // Dynamic X position for wider play area. Use full width (-30 to 30)
         const xPos = (Math.random() * 56 - 28); // Random between -28 and 28
