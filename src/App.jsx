@@ -6,6 +6,7 @@ import { usePartyKitConnection } from "./hooks";
 import { GithubLink } from "./Ui/GithubLink";
 import { GameOver } from "./Ui/GameOver";
 import { ScoreDisplay } from "./Ui/ScoreDisplay";
+import { Analytics } from "@vercel/analytics/react"
 
 function App() {
 console.log(`%c
@@ -32,6 +33,7 @@ console.log(`%c
   return (
     <div className="canvas-container">
       <MobileData />
+      <Analytics/>
       <GithubLink />
       <ScoreDisplay />
       <GameOver />
