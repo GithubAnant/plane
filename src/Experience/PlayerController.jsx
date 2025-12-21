@@ -152,7 +152,7 @@ export const PlayerController = () => {
 
     const X_LIMIT = 30; // Increased from 10 to 30
     const Y_Min = -1;
-    const Y_Max = 4;
+    const Y_Max = 0;
     
     if (currentPos.x > X_LIMIT && xVelocity > 0) finalXVelocity = 0;
     if (currentPos.x < -X_LIMIT && xVelocity < 0) finalXVelocity = 0;

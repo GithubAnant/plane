@@ -94,7 +94,6 @@ export const Environment = () => {
         { m: stackedStones.scene, s: 6, y: -1 },// 4: Stone
         { m: polyRocks.scene, s: 12, y: -1 }     // 5: Rock
     ];
-    // Weights: Cacti (0,1,2,3) vs Rocks (4,5) -> 4:2 ratio (66% cacti)
     
     const birdModels = [
         yellow_bird.scene, green_bird.scene, blue_bird.scene, red_bird.scene
