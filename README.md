@@ -45,3 +45,7 @@ press **A** on your phone to calibrate and start. tilt to fly. crash. repeat.
 ## stack
 
 three.js for 3D, rapier for collisions, partykit for phone-to-desktop sync, your phone's gyroscope for controls. made the plane model in blender cause why not.
+
+## credits
+
+original inspiration from [mustache-dev/fishing-app](https://github.com/mustache-dev/fishing-app)
