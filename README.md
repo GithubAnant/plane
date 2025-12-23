@@ -6,7 +6,6 @@
 
 ![controls](https://img.shields.io/badge/controls-gyroscope-blue)
 ![platform](https://img.shields.io/badge/platform-browser-green)
-![vibe](https://img.shields.io/badge/vibe-chaotic-orange)
 
 ---
 
