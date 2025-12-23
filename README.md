@@ -22,7 +22,7 @@ your phone becomes the controller — tilt it to steer the plane. gyroscope data
 
 ## running this thing
 
-step1: ⭐ [star the repo](https://github.com/GithubAnant/plane) — it makes the game smoother (seriously)
+step1: ⭐Star the repo — it makes the game smoother (seriously)
 
 step2: 
 
@@ -34,7 +34,7 @@ npm run dev
 
 ### https is required
 
-gyroscope API only works on HTTPS. use ngrok to tunnel your local server:
+step3: gyroscope API only works on HTTPS. use ngrok to tunnel your local server:
 
 <details>
 <summary><b>macOS</b></summary>
@@ -63,7 +63,7 @@ sudo apt update && sudo apt install ngrok
 ```
 </details>
 
-then run:
+step4: then run:
 ```bash
 ngrok http 5173
 ```
