@@ -21,7 +21,10 @@ your phone becomes the controller — tilt it to steer the plane. gyroscope data
 ---
 
 ## running this thing
-> ⭐ [star the repo](https://github.com/GithubAnant/plane) — it makes game smoother (seriously)!
+
+step1: ⭐ [star the repo](https://github.com/GithubAnant/plane) — it makes the game smoother (seriously)
+
+step2: 
 
 ```bash
 npm install
