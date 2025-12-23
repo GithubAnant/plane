@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import * as THREE from "three";
 import React, { useRef, useEffect } from "react";
 import { useGLTF } from "@react-three/drei";
