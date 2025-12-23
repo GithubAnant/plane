@@ -73,9 +73,6 @@ export const ActiveScreen = () => {
       <Button label="A" className={"A-button"} onClick={handleRecalibrate} />
       <p className="explanation">
         Tap the A button to recalibrate the accelerometer.
-      <div style={{position: 'fixed', bottom: '20px', left: '20px', background: 'rgba(0,0,0,0.8)', color: 'lime', padding: '10px', fontFamily: 'monospace', fontSize: '14px'}}>
-        {debugInfo || 'Waiting for gyro...'}
-      </div>
       </p>
     </>
   );
